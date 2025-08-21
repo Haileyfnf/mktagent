@@ -1,0 +1,351 @@
+# 제품 도메인 온톨로지
+domain: "product"
+version: "1.0.0"
+
+# 실제 데이터베이스 테이블 매핑
+table_mapping:
+  CategorizedItem, ProductHierarchy: "categorized_item"  # 개념명 -> 실제 테이블명
+  Brand: "brand"
+
+# 제품 관련 개념 정의
+concepts:
+  CategorizedItem:
+    description: "F&F 제품 정보 (categorized_item 테이블 기반)"
+    properties:
+      - id: "제품 고유 식별자"
+      - part_cd: "제품 품번 (PART_CD)"
+      - prdt_nm: "제품명 (PRDT_NM)"
+      - brd_cd: "브랜드 코드 (BRD_CD)"
+      - brd_nm: "브랜드명 (BRD_NM)"
+      - sesn: "시즌 (SESN) - 25SS, 25FW, 25N"
+      - cat: "카테고리 코드 (CAT)"
+      - cat_nm: "카테고리명 (CAT_NM)"
+      - sub_cat_nm: "서브 카테고리명 (SUB_CAT_NM)"
+      - item: "아이템 코드 (ITEM)"
+      - item_nm: "아이템명 (ITEM_NM)"
+      - prdt_kind_cd: "제품 분류 코드 (PRDT_KIND_CD)"
+      - prdt_kind_nm: "제품 분류명 (PRDT_KIND_NM)"
+      - domain1: "도메인 코드 (DOMAIN1)"
+      - domain1_name: "도메인명 (DOMAIN1_NAME)"
+      - tag_price: "정가 (TAG_PRICE)"
+      - unit_price: "원가 (UNIT_PRICE)"
+      - prdt_image: "제품 이미지 URL (PRDT_IMAGE)"
+      - create_dt: "생성 일시"
+    
+  Brand:
+    description: "F&F 브랜드 정보 (다중 테이블 필드명 지원)"
+    field_patterns:
+      pattern_1:
+        code_field: "brd_cd"
+        name_field: "brd_nm"
+        description: "categorized_item 테이블 등에서 사용"
+      pattern_2:
+        code_field: "brand_cd"
+        name_field: "brand_nm"
+        description: "일부 테이블에서 사용"
+    properties:
+      - id: "브랜드 ID"
+      - code: "브랜드 코드 (M, I, X) - brd_cd 또는 brand_cd"
+      - name: "브랜드명 - brd_nm 또는 brand_nm"
+      - synonyms: "브랜드 동의어/별칭 목록"
+    brand_mapping:
+      code_A:
+        code: "A"
+        brd_nm: "STRETCH ANGELS"
+        brand_nm: "Stretch angels"
+        synonyms: ["STRETCH ANGELS", "Stretch angels", "스트레치 엔젤스", "A"]
+      code_I:
+        code: "I"
+        brd_nm: "엠엘비 아동"
+        brand_nm: "MLB Kids"
+        synonyms: ["엠엘비 아동", "MLB Kids", "MLB키즈", "M키즈", "MK", "I"]
+      code_X:
+        code: "X"
+        brd_nm: "디스커버리"
+        brand_nm: "Discovery"
+        synonyms: ["디스커버리", "Discovery", "Discovery Expedition", "디커", "DX", "X"]
+      code_M:
+        code: "M"
+        brd_nm: "엠엘비"
+        brand_nm: "MLB"
+        synonyms: ["엠엘비", "MLB", "M"]
+      code_ST:
+        code: "ST"
+        brd_nm: "세르지오 타키니"
+        brand_nm: "Sergio Tacchini"
+        synonyms: ["세르지오 타키니", "Sergio Tacchini", "ST"]
+      code_V:
+        code: "V"
+        brd_nm: "DUVETICA"
+        brand_nm: "Duvetica"
+        synonyms: ["DUVETICA", "Duvetica", "듀베티카", "V"]
+      code_W:
+        code: "W"
+        brd_nm: "수프라"
+        brand_nm: "Supra"
+        synonyms: ["수프라", "Supra", "W"]
+    
+  Season:
+    description: "F&F 시즌 분류"
+    properties:
+      - code: "시즌 코드"
+      - name: "시즌명"
+      - year: "연도"
+    examples:
+      - "25SS": "2025년 Spring/Summer"
+      - "25FW": "2025년 Fall/Winter"
+      - "25N": "2025년 Non Season"
+    
+  ProductHierarchy:
+    description: "제품 3단계 계층구조"
+    hierarchy:
+      level1: "PRDT_KIND_CD/PRDT_KIND_NM (제품 카테고리 분류)"
+      level2: "ITEM/ITEM_NM (제품의 아이템 단위 분류)"
+      level3: "PART_CD (제품 품번)"
+    properties:
+      - prdt_kind_cd: "1단계 - 제품 분류 코드"
+      - prdt_kind_nm: "1단계 - 제품 분류명"
+      - item: "2단계 - 아이템 코드"
+      - item_nm: "2단계 - 아이템명"
+      - part_cd: "3단계 - 제품 품번 (개별 제품 고유 코드)"
+
+  PartCodeStructure:
+    description: "F&F 제품 품번(PART_CD) 체계 (MK 26년 기준)"
+    structure: "기준(1자리) + 성별(1자리) + 아이템(1자리) + 도메인(1자리) + 번등(1자리) + 연도(2자리) + 시즌(1자리)"
+    positions:
+      position_1: "기준 (7=NEWYEAR, 기타)"
+      position_2: "성별 (A=All/공용, F=여성, M=남성, B=베이비)"
+      position_3: "아이템 (아이템 코드)"
+      position_4: "도메인 (T=티셔츠, 기타)"
+      position_5: "번등 (0=변동, 1-9=번등)"
+      position_6_7: "연도 (25=2025년)"
+      position_8: "시즌 (N=NEWYEAR, 4=기타)"
+    examples:
+      swcr01014:
+        code: "SWCR01014"
+        breakdown:
+          position_1: "S (기준)"
+          position_2: "W (성별)"
+          position_3: "C (아이템)"
+          position_4: "R (도메인)"
+          position_5: "0 (번등)"
+          position_6_7: "10 (연도)"
+          position_8: "14 (시즌)"
+      newyear_example_1:
+        code: "7ACPHG14N"
+        breakdown:
+          position_1: "7 (NEWYEAR 기준)"
+          position_2: "A (All/공용)"
+          position_3: "C (아이템)"
+          position_4: "P (도메인)"
+          position_5: "H (번등)"
+          position_6_7: "G1 (연도)"
+          position_8: "4N (시즌)"
+      newyear_example_2:
+        code: "7ABKB045N"
+        breakdown:
+          position_1: "7 (NEWYEAR 기준)"
+          position_2: "A (All/공용)"
+          position_3: "B (아이템)"
+          position_4: "K (도메인)"
+          position_5: "B (번등)"
+          position_6_7: "04 (연도)"
+          position_8: "5N (시즌)"
+    special_rules:
+      newyear_items: "NEWYEAR 아이템만 6번 'N'으로 변경, 그 외 아이템 기존과 유지"
+      newyear_codes: ["7APTMN161", "7FSKBN161"]
+      newyear_description: "Monogram + New year, Basic + New year"
+
+  BrandSpecificPartCode:
+    description: "브랜드별 품번 체계 (과거/현재 혼재)"
+    brand_structures:
+      MLB:
+        pattern: "MLB브랜드코드 + 의류/악세사리 + Item+고유번호 + 년코드 + 생산차수 + 시즌코드"
+        positions:
+          - "MLB 브랜드코드"
+          - "의류/악세사리 구분"
+          - "Item + 고유번호"
+          - "년도코드"
+          - "생산차수"
+          - "시즌코드"
+        example: "31CP85011"
+        
+      Discovery:
+        pattern: "DX브랜드코드 + 성별 + Item+고유번호 + 년코드 + 생산차수 + 시즌코드"
+        positions:
+          - "DX 브랜드코드"
+          - "성별 (D/M/D/V/7/1/0/1/1)"
+          - "Item + 고유번호"
+          - "년도코드"
+          - "생산차수"
+          - "시즌코드"
+        example: "DMD V71011"
+        
+      MLB_Kids:
+        pattern_legacy: "MLB Kids브랜드코드 + 의류/악세사리 + Item+고유번호 + 년코드 + 생산차수 + 시즌코드"
+        pattern_2026: "기준(1자리) + 성별(1자리) + 아이템(1자리) + 도메인(1자리) + 번등(1자리) + 연도(2자리) + 시즌(1자리)"
+        legacy_positions:
+          - "MLB Kids 브랜드코드 (7)"
+          - "의류/악세사리 구분 (1)"
+          - "Item + 고유번호 (CP)"
+          - "년도코드 (8)"
+          - "생산차수 (5)"
+          - "시즌코드 (011)"
+        modern_positions:
+          position_1: "기준 (7=NEWYEAR, 기타)"
+          position_2: "성별 (A=All/공용, F=여성, M=남성, B=베이비)"
+          position_3: "아이템 (아이템 코드)"
+          position_4: "도메인 (T=티셔츠, 기타)"
+          position_5: "번등 (0=변동, 1-9=번등)"
+          position_6_7: "연도 (26=2026년)"
+          position_8: "시즌 (N=NEWYEAR, 4=기타)"
+        examples:
+          legacy: "71CP85011"
+          modern_newyear: "7APTMN261"
+          modern_basic: "7FSKBN261"
+        
+      SA_Stretch_Angels:
+        pattern: "SA브랜드코드 + 소재 + Item+고유번호 + 년코드 + 생산차수 + 시즌코드"
+        positions:
+          - "SA 브랜드코드 (S)"
+          - "소재 구분 (X)"
+          - "Item + 고유번호 (FN)"
+          - "년도코드 (1)"
+          - "생산차수 (1)"
+          - "시즌코드 (011)"
+        example: "SXFN11011"
+        
+      Duvetica:
+        pattern: "DV브랜드코드 + 성별 + Item+고유번호 + 년코드 + 생산차수 + 시즌코드"
+        positions:
+          - "DV 브랜드코드 (V)"
+          - "성별 구분 (U)"
+          - "Item + 고유번호 (DV)"
+          - "년도코드 (0)"
+          - "생산차수 (1)"
+          - "시즌코드 (011)"
+        example: "VUDV01011"
+        
+# F&F 실제 카테고리 데이터 (cat_nm 기준)
+actual_categories:
+  상의류:
+    - "상의"
+    - "티셔츠"
+    - "맨투맨/후드"
+    - "맨투맨"
+    - "나시티"
+    - "셔츠"
+    - "니트"
+    - "폴로티"
+    - "스웨터"
+    - "베이스볼셔츠"
+    
+  하의류:
+    - "하의"
+    - "팬츠"
+    - "반바지"
+    - "데님"
+    - "레깅스"
+    - "스커트"
+    
+  아우터류:
+    - "아우터"
+    - "패딩"
+    - "간절기아우터"
+    - "바람막이"
+    - "후리스"
+    - "플리스"
+    - "패딩자켓"
+    
+  원피스류:
+    - "원피스"
+    
+  세트/셋업류:
+    - "세트/상하복"
+    - "트레이닝셋업"
+    - "트레이닝집업"
+    - "트레이닝복"
+    
+  시즌의류:
+    - "스윔웨어"
+    
+  신발류:
+    - "신발"
+    - "아동화"
+    - "시즌슈즈"
+    
+  액세서리:
+    - "모자"
+    - "가방"
+    - "악세서리"
+    - "양말"
+    - "기타용품"
+    - "용품"
+    - "기타"
+    - "기타의류"
+    
+  특수카테고리:
+    - "베이비"
+    - "펫"
+
+# F&F 실제 제품 분류 (PRDT_KIND)
+product_kinds:
+  - code: "INN"
+    name: "Inner"
+    description: "이너웨어"
+  - code: "HEA"
+    name: "Headwear"
+    description: "모자류"
+  - code: "SHO"
+    name: "Shoes"
+    description: "신발류"
+  - code: "BOT"
+    name: "Bottom"
+    description: "하의류"
+  - code: "OUT"
+    name: "Outer"
+    description: "아우터류"
+  - code: "BAG"
+    name: "Bag"
+    description: "가방류"
+  - code: "WTC"
+    name: "Wear_etc"
+    description: "기타 의류"
+  - code: "ATC"
+    name: "Acc_etc"
+    description: "기타 액세서리"
+  - code: "ZZZ"
+    name: "저장품"
+    description: "저장품/기타"
+
+# 도메인 라인 (DOMAIN1)
+domain_lines:
+  - "Basic": "베이직 라인"
+  - "DM001": "프리미엄 라인"
+  - "Varsity": "바시티 라인"
+  - "Athleisure": "애슬레저 라인"
+
+# 시즌별 제품 특성
+seasonal_characteristics:
+  "25SS":
+    - "경량 소재"
+    - "밝은 컬러"
+    - "반팔, 반바지"
+  "25FW":
+    - "두꺼운 소재"
+    - "어두운 컬러"
+    - "아우터, 긴팔"
+  "25N":
+    - "사계절 착용"
+    - "베이직 아이템"
+
+# 인플루언서 마케팅 관련 제품 속성
+influencer_marketing_attributes:
+  visual_appeal:
+    - "SNS 촬영 적합성"
+    - "색상 매력도"
+    - "스타일링 다양성"
+  target_demographics:
+    - "연령대"
+    - "성별"
+    - "라이프스타일"

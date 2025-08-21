@@ -1,0 +1,125 @@
+# F&F 인플루언서 마케팅 도메인 간 관계 정의
+relations:
+  version: "1.0.0"
+  description: "F&F 인플루언서 마케팅 시스템의 제품, 마케팅, 배송 도메인 간 관계 (ERD 기반)"
+
+# 제품 ↔ 캠페인 관계
+product_marketing:
+  - relation: "features_in_campaign"
+    from: "marketing.Campaign"
+    to: "product.CategorizedItem"
+    via: "part_cds (Campaign) = part_cd (CategorizedItem)"
+    description: "특정 제품들을 캠페인 시딩 대상으로 지정"
+    cardinality: "1:N"
+    
+  - relation: "brand_campaign"
+    from: "marketing.Campaign"
+    to: "product.Brand"
+    via: "brand_id (Campaign) = id (Brand)"
+    description: "특정 브랜드의 캠페인 시딩"
+    cardinality: "N:1"
+
+# 캠페인 ↔ 배송 관계
+marketing_delivery:
+  - relation: "campaign_to_campaign_influencer"
+    from: "marketing.Campaign"
+    to: "marketing.CampaignInfluencer"
+    via: "id (campaign) = campaign_id (campaign_influencer)"
+    description: "캠페인이 캠페인 인플루언서와 연결"
+    cardinality: "1:N"
+    
+  - relation: "campaign_influencer_to_delivery"
+    from: "marketing.CampaignInfluencer"
+    to: "delivery.DeliveryEntry"
+    via: "id (campaign_influencer) = campaign_influencer_id (delivery_entry)"
+    description: "캠페인 인플루언서별로 배송 항목을 생성"
+    cardinality: "1:N"
+
+# 제품 ↔ 배송 관계
+product_delivery:
+  - relation: "delivery_entry_to_product"
+    from: "delivery.DeliveryEntry"
+    to: "product.CategorizedItem"
+    via: "categorized_item_id (delivery_entry) = id (categorized_item)"
+    description: "배송 항목이 특정 제품을 배송"
+    cardinality: "N:1"
+
+# 핵심 비즈니스 플로우 관계
+business_flows:
+  - flow: "influencer_seeding_process"
+    description: "인플루언서 시딩 프로세스"
+    steps:
+      1:
+        entity: "marketing.Campaign"
+        action: "캠페인 생성"
+        fields: ["camp_nm", "start_date", "end_date", "part_cds"]
+      2:
+        entity: "marketing.CampaignInfluencer"
+        action: "인플루언서 섭외"
+        fields: ["cast_msg_dt", "cast_status"]
+      3:
+        entity: "delivery.Delivery"
+        action: "배송 헤더 생성"
+        fields: ["delv_nm", "delv_type", "campaign_id"]
+      4:
+        entity: "delivery.DeliveryEntry"
+        action: "배송 상세 생성"
+        fields: ["color", "size", "qty", "categorized_item_id"]
+      5:
+        entity: "delivery.DeliveryEntry"
+        action: "WMS 처리 및 배송"
+        fields: ["tracking_number", "tracking_status"]
+      6:
+        entity: "marketing.CampaignInfluencer"
+        action: "컨텐츠 업로드"
+        fields: ["contents_post_dt", "rep_contents_id"]
+        
+  - flow: "campaign_performance_tracking"
+    description: "캠페인 성과 추적"
+    metrics:
+      - entity: "marketing.Campaign"
+        kpi: "target_cnt vs actual_content_count"
+      - entity: "marketing.Campaign"
+        kpi: "engmt_avg, engmt_cnt"
+      - entity: "delivery.DeliveryEntry"
+        kpi: "delivery_completion_rate"
+      - entity: "marketing.CampaignInfluencer"
+        kpi: "content_upload_rate"
+
+# 데이터 일관성 규칙
+data_consistency:
+  - rule: "brand_consistency"
+    description: "모든 관련 엔티티의 brand_id는 일치해야 함"
+    entities: ["marketing.Campaign", "delivery.Delivery", "delivery.DeliveryEntry", "product.CategorizedItem"]
+    
+  - rule: "campaign_timeline"
+    description: "캠페인 관련 모든 활동은 캠페인 기간 내에 발생해야 함"
+    validation: "delivery.create_dt BETWEEN campaign.start_date AND campaign.end_date"
+    
+  - rule: "delivery_quantity_consistency"
+    description: "배송 요청 수량과 확정 수량의 일관성"
+    validation: "delivery_entry.qty_confirmed <= delivery_entry.qty"
+    
+  - rule: "influencer_participation_integrity"
+    description: "인플루언서 참여 상태와 배송/컨텐츠 상태의 일관성"
+    validation: "campaign_influencer.cast_status = 'ACCEPTED' 필요 for delivery creation"
+
+# 성과 측정 관계
+performance_relationships:
+  - metric: "campaign_roi"
+    calculation:
+      numerator: "marketing.Campaign.engmt_cnt * estimated_value_per_engagement"
+      denominator: "SUM(delivery.DeliveryEntry.price_total) + campaign_management_cost"
+      
+  - metric: "influencer_effectiveness"
+    factors:
+      - "marketing.CampaignInfluencer.progress completion rate"
+      - "delivery.DeliveryEntry delivery success rate"
+      - "marketing.Content engagement metrics"
+      - "time_to_content_upload"
+      
+  - metric: "product_seeding_performance"
+    by_product:
+      - "product.CategorizedItem seeding frequency"
+      - "content generation rate per product"
+      - "engagement rate by product category"

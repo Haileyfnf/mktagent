@@ -1,0 +1,121 @@
+# F&F 인플루언서 마케팅 배송/시딩 도메인 온톨로지
+domain: "delivery"
+version: "1.0.0"
+
+# 실제 데이터베이스 테이블 매핑
+table_mapping:
+  Delivery: "delivery"  # 개념명 -> 실제 테이블명
+  DeliveryEntry: "delivery_entry"
+
+# F&F 배송/시딩 관련 개념 정의 (ERD 기반)
+concepts:
+  Delivery:
+    description: "배송 헤더 정보 (delivery 테이블 기반)"
+    properties:
+      - id: "배송 고유 식별자"
+      - create_dt: "배송 요청서 생성 일시 (CREATE_DT)"
+      - delv_code: "배송 캠페인 코드 (DELV_CODE)"
+      - delv_nm: "배송 캠페인명 (DELV_NM)"
+      - delv_type: "배송 유형 (DELV_TYPE)"
+      - end_dt: "배송 완료 일시 (END_DT)"
+      - account_id: "배송 요청 유저 식별자 (ACCOUNT_ID)"
+      - brand_id: "브랜드 식별자 (BRAND_ID)"
+      - campaign_id: "캠페인 식별자 (CAMPAIGN_ID)"
+    
+  DeliveryEntry:
+    description: "배송 상세 정보 - WMS 인터페이스 (delivery_entry 테이블 기반)"
+    properties:
+      - id: "배송 상세 고유 식별자"
+      - create_dt: "배송 요청서 생성 일시 (CREATE_DT)"
+      - delivery_confirm_dt: "배송 확정 일시 (DELIVERY_CONFIRM_DT)"
+      - delivery_req_dt: "배송 요청 일시 (DELIVERY_REQ_DT)"
+      - entry_code: "배송 상세 코드 (ENTRY_CODE)"
+      - color: "제품 색상 (COLOR)"
+      - size: "제품 사이즈 (SIZE)"
+      - order_detail_number: "주문 상세 번호 (ORDER_DETAIL_NUMBER)"
+      - order_number: "주문 번호 (ORDER_NUMBER)"
+      - price: "제품 가격 (PRICE)"
+      - price_total: "총 금액 (PRICE_TOTAL)"
+      - qty: "유저가 배송 요청한 수량 (QTY)"
+      - qty_confirmed: "배송 확정된 수량 (QTY_CONFIRMED)"
+      - status: "배송 상태 (STATUS)"
+      - tracking_number: "송장 번호 (TRACKING_NUMBER)"
+      - tracking_status: "배송 추적 상태 (TRACKING_STATUS)"
+      - request_status: "요청 상태 (REQUEST_STATUS)"
+      - brand_id: "브랜드 식별자 (BRAND_ID)"
+      - campaign_influencer_id: "캠페인 인플루언서 ID (CAMPAIGN_INFLUENCER_ID)"
+      - delivery_id: "배송 마스터 ID (DELIVERY_ID)"
+      - influencer_id: "인플루언서 ID (INFLUENCER_ID)"
+      - categorized_item_id: "제품 ID (CATEGORIZED_ITEM_ID)"
+    
+  InfluencerAddress:
+    description: "인플루언서 배송 주소 정보"
+    properties:
+      - id: "주소 ID"
+      - influencer_id: "인플루언서 ID"
+      - recipient_name: "수령인명"
+      - phone_number: "연락처"
+      - address_line1: "주소 1"
+      - address_line2: "주소 2"
+      - city: "시/군/구"
+      - state: "도/시"
+      - postal_code: "우편번호"
+      - country: "국가"
+      - is_default: "기본 주소 여부"
+      - address_type: "주소 유형 (집, 사무실 등)"
+
+# F&F 배송 유형 (DELV_TYPE)
+delivery_types:
+  - "PPL": "PPL 배송 (Product Placement)"
+  - "CAMPAIGN": "캠페인 시딩"
+  - "SIMPLE_DELIVERY": "단순 배송"
+
+# 배송 상태 (STATUS)
+delivery_status:
+  - "AWAITING_REQUEST": "배송 요청 대기"
+  - "COMPLETE": "배송 완료"
+  - "WMS_COMPLETE": "WMS 처리 완료"
+  - "NONE": "상태 없음"
+  - "DELIVERY_IN_PROGRESS": "배송 진행 중"
+  - "REQUEST_FAILED": "요청 실패"
+  - "AWAITING_DELIVERY_START": "배송 시작 대기"
+
+# 배송 추적 상태 (TRACKING_STATUS)
+tracking_status:
+  - "information_received": "택배사 배송정보 접수"
+  - "in_transit": "택배사 인수/운송 중"
+  - "out_for_delivery": "배송 출발"
+  - "delivered": "배송 완료"
+
+# WMS 연동 프로세스
+wms_integration:
+  workflow:
+    1: "배송 요청서 생성 (delivery_entry 생성)"
+    2: "WMS 시스템으로 주문 정보 전송"
+    3: "WMS에서 재고 확인 및 피킹"
+    4: "배송업체 할당 및 송장 번호 생성"
+    5: "배송 시작 및 추적 정보 업데이트"
+    6: "배송 완료 확인"
+  
+  data_sync:
+    - "재고 수량 실시간 동기화"
+    - "배송 상태 업데이트"
+    - "송장 번호 연동"
+    - "배송 완료 알림"
+
+# 인플루언서 시딩 특화 프로세스
+influencer_seeding:
+  process_flow:
+    1: "캠페인 생성 및 인플루언서 섭외"
+    2: "인플루언서 수락 시 배송 정보 수집"
+    3: "시딩 제품 선정 및 배송 요청서 생성"
+    4: "WMS 처리 및 배송 시작"
+    5: "인플루언서 수령 확인"
+    6: "컨텐츠 업로드 독려"
+  
+# 배송 성과 지표 (KPI)
+delivery_kpis:
+  - "배송 완료율": "요청 대비 성공적으로 배송된 비율"
+  - "평균 배송 시간": "요청부터 배송 완료까지 소요 시간"
+  - "배송 정확도": "올바른 제품/사이즈/색상 배송 비율"
+  - "컨텐츠 업로드율": "제품 수령 후 컨텐츠 업로드 비율"

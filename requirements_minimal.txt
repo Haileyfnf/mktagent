@@ -1,0 +1,60 @@
+# FastAPI Backend Dependencies (Essential)
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+starlette==0.27.0
+pydantic==2.10.6
+pydantic-settings>=2.1.0,<3.0.0
+pydantic_core==2.27.2
+
+# Database (Essential for AI Analysis Service)
+snowflake-connector-python==3.7.0
+snowflake-sqlalchemy==1.4.7
+duckdb==0.9.2
+
+# Authentication and Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# HTTP Client
+httpx==0.28.1
+httpcore==1.0.7
+requests>=2.32.2
+h11==0.14.0
+
+# Data Processing (Essential)
+pandas==2.1.4
+numpy>=1.25.2,<2.0.0
+PyYAML==6.0
+
+# AI/ML Libraries (Light - Essential for AI Analysis)
+anthropic>=0.3.0
+# langchain>=0.1.0  # Heavy package not currently used
+# langchain-openai>=0.0.8  # Heavy package not currently used
+# langchain-community>=0.0.20  # Very heavy package
+
+# Logging and Monitoring (Essential)
+loguru==0.7.2
+
+# Environment Configuration
+python-dotenv==1.0.1
+
+# Web Framework (Existing Flask)
+Flask==3.1.0
+flask-cors==5.0.1
+Werkzeug==3.1.3
+
+# System and Utilities (Essential)
+click==8.1.8
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Removed heavy packages:
+# torch>=2.0.1,<2.3.0  # Very heavy (500MB+)
+# transformers>=4.35.0,<5.0.0  # Very heavy (300MB+)
+# scikit-learn==1.3.0  # Heavy (100MB+)
+# scipy==1.11.1  # Heavy (50MB+)
+# matplotlib==3.7.2  # Heavy visualization not needed now
+# streamlit==1.45.1  # Heavy web UI not needed now
+# All jupyterlab related packages  # Only needed in dev environment
+# All PyQt5 related packages  # GUI not needed

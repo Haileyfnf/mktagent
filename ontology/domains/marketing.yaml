@@ -1,0 +1,72 @@
+# F&F 인플루언서 마케팅 도메인 온톨로지
+domain: "marketing"
+version: "1.0.0"
+
+# 실제 데이터베이스 테이블 매핑
+table_mapping:
+  Campaign: "campaign"  # 개념명 -> 실제 테이블명
+  CampaignInfluencer: "campaign_influencer"
+  CampaignBrand: "categorized_item"  # 브랜드 정보는 categorized_item 테이블에 포함
+
+# F&F 인플루언서 마케팅 관련 개념 정의 (ERD 기반)
+concepts:
+  Campaign:
+    description: "인플루언서 마케팅 캠페인 (campaign 테이블 기반)"
+    properties:
+      - id: "캠페인 고유 식별자"
+      - camp_code: "캠페인 코드 (CAMP_CODE)"
+      - camp_nm: "캠페인명 (CAMP_NM)"
+      - start_date: "캠페인 시작 일시 (START_DATE)"
+      - end_date: "캠페인 종료 일시 (END_DATE)"
+      - status: "캠페인 상태 (STATUS)"
+      - target_cnt: "목표 컨텐츠 수 (TARGET_CNT)"
+      - brand_id: "브랜드 식별자 (BRAND_ID)"
+      - channel_id: "채널 식별자 (CHANNEL_ID)"
+      - engmt_avg: "평균 인게이지먼트율 (ENGMT_AVG)"
+      - engmt_cnt: "총 인게이지먼트 수 (ENGMT_CNT)"
+      - part_cds: "시딩 대표 제품 품번 (PART_CDS)"
+      - campaign_hashtags: "캠페인 필수 해시태그 (CAMPAIGN_HASHTAGS)"
+      - prdt_kind_nms: "제품 카테고리 (PRDT_KIND_NMS)"
+    
+  CampaignInfluencer:
+    description: "캠페인-인플루언서 참여 정보 (campaign_influencer 테이블 기반)"
+    properties:
+      - id: "캠페인-인플루언서 참여 고유 식별자"
+      - cast_msg_dt: "섭외 메시지 발송 일시 (CAST_MSG_DT)"
+      - cast_res_date: "섭외 응답 일시 (CAST_RES_DATE)"
+      - cast_status: "섭외 상태 (CAST_STATUS)"
+      - contents_post_dt: "컨텐츠 게시 일시 (CONTENTS_POST_DT)"
+      - delivery_dt: "제품 배송 일시 (DELIVERY_DT)"
+      - invitation_status: "초대 상태 (INVITATION_STATUS)"
+      - progress: "전체 진행 상태 (PROGRESS)"
+      - brand_id: "브랜드 식별자 (BRAND_ID)"
+      - campaign_id: "캠페인 식별자 (CAMPAIGN_ID)"
+      - channel_account_id: "채널 계정 식별자 (CHANNEL_ACCOUNT_ID)"
+      - influencer_id: "인플루언서 식별자 (INFLUENCER_ID)"
+      - rep_contents_id: "대표 컨텐츠 식별자 (REP_CONTENTS_ID)"
+    
+# 캠페인 상태
+campaign_status:
+  - "NOT_STARTED": "캠페인 시작 전"
+  - "CASTING": "인플루언서 섭외 중"
+  - "DELIVERING": "제품 배송 중"
+  - "EVALUATING": "컨텐츠 평가 중"
+  - "COMPLETE": "캠페인 진행 완료"
+
+# 섭외 상태
+casting_status:
+  - "NOT_STARTED": "섭외 시작 전"
+  - "AWAITING_RESPONSE": "응답 대기"
+  - "ACCEPTED": "수락"
+  - "DECLINED": "거절"
+
+# 인플루언서 캠페인 진행 상태
+progress:
+  - "AWAITING_INVITATION": "캠페인 섭외 대기"
+  - "AWAITING_RESPONSE": "캠페인 응답 대기"
+  - "AWAITING_BENEFIT": "캠페인 혜택 대기"
+  - "AWAITING_SHIPPING": "캠페인 배송 대기"
+  - "AWAITING_CONTENTS_UPLOAD": "캠페인 컨텐츠 업로드 대기"
+  - "AWAITING_EVALUATION": "컨텐츠 평가 대기"
+  - "COMPLETE": "캠페인 참여 완료"
+  - "CANCELLED": "캠페인 참여 취소"

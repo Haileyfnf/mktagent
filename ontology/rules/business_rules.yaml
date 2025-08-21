@@ -1,0 +1,36 @@
+# F&F 인플루언서 마케팅 비즈니스 규칙 정의
+business_rules:
+  version: "1.0.0"
+  description: "F&F 인플루언서 마케팅 시스템의 비즈니스 규칙"
+
+# 마케팅 관련 비즈니스 규칙
+marketing_rules:
+  - id: "MKT_001"
+    name: "컨텐츠 업로드 미완료 알림"
+    condition: "delivery_entry.status == 'COMPLETE' AND delivery_entry.delivery_confirm_dt < current_date - 7_days AND campaign_influencer.contents_post_dt IS NULL"
+    action: "마케팅 담당자에게 컨텐츠 업로드 독려 알림 발송"
+    priority: "high"
+    description: "배송 완료 후 1주일이 지났으나 컨텐츠 업로드가 안된 경우"
+    
+  - id: "MKT_002"
+    name: "캠페인 종료 임박 알림"
+    condition: "campaign.end_date - current_date <= 3_days AND campaign_influencer.contents_post_dt IS NULL"
+    action: "인플루언서에게 컨텐츠 업로드 리마인드 발송"
+    priority: "high"
+    description: "캠페인 종료 3일 전 컨텐츠 미업로드 인플루언서 독려"
+    
+  - id: "MKT_003"
+    name: "배송 지연으로 인한 캠페인 연장 검토"
+    condition: "campaign.end_date - current_date <= 1_day AND delivery_entry.status IN ('AWAITING_DELIVERY_START', 'DELIVERY_IN_PROGRESS')"
+    action: "마케팅 담당자에게 캠페인 기간 연장 검토 요청"
+    priority: "medium"
+    description: "배송 지연으로 캠페인 기간 내 컨텐츠 업로드가 어려운 경우"
+    
+  - id: "MKT_004"
+    name: "해시태그 가이드라인 미준수 알림"
+    condition: "delivery_entry.status == 'COMPLETE' AND campaign_influencer.contents_post_dt IS NOT NULL AND campaign.required_hashtags NOT IN content.hashtags"
+    action: "실무자에게 알림 발송 후 인플루언서에게 해시태그 포함 요청 DM 자동 발송"
+    priority: "high"
+    description: "배송 완료 후 업로드된 컨텐츠가 필수 해시태그 가이드라인을 준수하지 않은 경우"
+    staff_alert_template: "[해시태그 미준수] {campaign_name} 캠페인의 {influencer_name} 인플루언서가 필수 해시태그 '{required_hashtag}' 없이 컨텐츠를 업로드했습니다. 자동 DM 발송하시겠습니까?"
+    influencer_message_template: "{influencer_name}님, 업로드하신 게시물에 해시태그 `{required_hashtag}`를 함께 포함 부탁드립니다. 협조 감사드립니다."

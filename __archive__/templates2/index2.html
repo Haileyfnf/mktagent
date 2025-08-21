@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뉴스 모니터링 대시보드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 80px;
+            height: 100vh;
+            background-color: #3b4863;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .sidebar-item {
+            width: 60px;
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8b95a5;
+            cursor: pointer;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+
+        .sidebar-item:hover {
+            color: #fff;
+        }
+
+        .sidebar-item.active {
+            color: #4285f4;
+        }
+
+        .sidebar-item svg {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-item span {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* 메인 컨텐츠 */
+        .main-content {
+            margin-left: 80px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        /* 헤더 */
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .header-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4285f4;
+        }
+
+        /* 브랜드 관리 섹션 */
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .btn-primary {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #3367d6;
+        }
+
+        /* 브랜드 입력 폼 */
+        .brand-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4285f4;
+        }
+
+        /* 브랜드 리스트 */
+        .brand-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .brand-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .brand-item:hover {
+            background: #e9ecef;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-type {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .brand-type.company {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .brand-type.competitor {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .brand-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .brand-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .btn-icon:hover {
+            background: #e1e4e8;
+        }
+
+        /* 모니터링 현황 */
+        .monitoring-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .status-card {
+            padding: 20px;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .status-card:hover {
+            border-color: #4285f4;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.1);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .status-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-metrics {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .metric {
+            flex: 1;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* 알림 설정 */
+        .notification-settings {
+            display: grid;
+            gap: 15px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .setting-info h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .setting-info p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 토글 스위치 */
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #4285f4;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- 사이드바 -->
+    <div class="sidebar">
+        <div class="sidebar-item active">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+            </svg>
+            <span>대시보드</span>
+        </div>
+        <div class="sidebar-item">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+            </svg>
+            <span>모니터링</span>
+        </div>
+        <div class="sidebar-item">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+            <span>알림</span>
+        </div>
+        <div class="sidebar-item">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+            <span>설정</span>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="main-content">
+        <!-- 헤더 -->
+        <div class="header">
+            <h1>네이버 이슈 모니터링</h1>
+            <div class="header-stats">
+                <div class="stat-card">
+                    <h3>모니터링 브랜드</h3>
+                    <div class="value">12</div>
+                </div>
+                <div class="stat-card">
+                    <h3>오늘 수집된 기사</h3>
+                    <div class="value">248</div>
+                </div>
+                <div class="stat-card">
+                    <h3>보도자료</h3>
+                    <div class="value">37</div>
+                </div>
+                <div class="stat-card">
+                    <h3>오가닉 기사</h3>
+                    <div class="value">211</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 브랜드 관리 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">브랜드 관리</h2>
+                <button class="btn-primary" onclick="openModal()">+ 브랜드 추가</button>
+            </div>
+
+            <div class="brand-list">
+                <div class="brand-item">
+                    <div class="brand-info">
+                        <span class="brand-type company">자사</span>
+                        <span class="brand-name">디스커버리 익스페디션</span>
+                    </div>
+                    <div class="brand-actions">
+                        <button class="btn-icon">
+                            <svg width="16" height="16" fill="#666" viewBox="0 0 24 24">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon">
+                            <svg width="16" height="16" fill="#666" viewBox="0 0 24 24">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="brand-item">
+                    <div class="brand-info">
+                        <span class="brand-type competitor">경쟁사</span>
+                        <span class="brand-name">노스페이스</span>
+                    </div>
+                    <div class="brand-actions">
+                        <button class="btn-icon">
+                            <svg width="16" height="16" fill="#666" viewBox="0 0 24 24">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon">
+                            <svg width="16" height="16" fill="#666" viewBox="0 0 24 24">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="brand-item">
+                    <div class="brand-info">
+                        <span class="brand-type competitor">경쟁사</span>
+                        <span class="brand-name">스노우피크</span>
+                    </div>
+                    <div class="brand-actions">
+                        <button class="btn-icon">
+                            <svg width="16" height="16" fill="#666" viewBox="0 0 24 24">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon">
+                            <svg width="16" height="16" fill="#666" viewBox="0 0 24 24">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 모니터링 현황 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">실시간 모니터링 현황</h2>
+            </div>
+
+            <div class="monitoring-status">
+                <div class="status-card">
+                    <div class="status-header">
+                        <h3 class="status-title">디스커버리 익스페디션</h3>
+                        <span class="status-badge">활성</span>
+                    </div>
+                    <div class="status-metrics">
+                        <div class="metric">
+                            <div class="metric-label">전체 기사</div>
+                            <div class="metric-value">152</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">보도자료</div>
+                            <div class="metric-value">23</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">언급률</div>
+                            <div class="metric-value">84%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-header">
+                        <h3 class="status-title">노스페이스</h3>
+                        <span class="status-badge">활성</span>
+                    </div>
+                    <div class="status-metrics">
+                        <div class="metric">
+                            <div class="metric-label">전체 기사</div>
+                            <div class="metric-value">89</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">보도자료</div>
+                            <div class="metric-value">14</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">언급률</div>
+                            <div class="metric-value">62%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-header">
+                        <h3 class="status-title">스노우피크</h3>
+                        <span class="status-badge">활성</span>
+                    </div>
+                    <div class="status-metrics">
+                        <div class="metric">
+                            <div class="metric-label">전체 기사</div>
+                            <div class="metric-value">76</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">보도자료</div>
+                            <div class="metric-value">11</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">언급률</div>
+                            <div class="metric-value">51%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 알림 설정 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">알림 설정</h2>
+            </div>
+
+            <div class="notification-settings">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>일일 리포트</h4>
+                        <p>매일 오전 9시에 전일 모니터링 결과를 이메일로 전송</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>실시간 알림</h4>
+                        <p>중요 이슈 발생 시 즉시 알림</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>주간 분석 리포트</h4>
+                        <p>매주 월요일 오전 10시에 주간 트렌드 분석 리포트 전송</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 브랜드 추가 모달 -->
+    <div id="brandModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">브랜드 추가</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <form>
+                <div class="brand-form">
+                    <div class="form-group">
+                        <label>브랜드 유형</label>
+                        <select style="padding: 12px; border: 1px solid #e1e4e8; border-radius: 6px; font-size: 14px;">
+                            <option>자사 브랜드</option>
+                            <option>경쟁사 브랜드</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>브랜드명</label>
+                        <input type="text" placeholder="브랜드명 입력">
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>추가 키워드 (선택사항)</label>
+                    <input type="text" placeholder="콤마로 구분하여 입력 (예: 변우석, 고윤정)">
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
+                    <button type="button" class="btn-primary" style="background: #e1e4e8; color: #666;" onclick="closeModal()">취소</button>
+                    <button type="submit" class="btn-primary">추가</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 수정용 모달 동적 생성 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">키워드 수정</h3>
+                <button class="close-btn" onclick="document.getElementById('editModal').remove()">&times;</button>
+            </div>
+            <form id="editKeywordForm">
+                <div class="brand-form">
+                    <div class="form-group">
+                        <label>브랜드 유형</label>
+                        <select id="editType" style="padding: 12px; border: 1px solid #e1e4e8; border-radius: 6px; font-size: 14px;">
+                            <option value="자사">자사 브랜드</option>
+                            <option value="경쟁사">경쟁사 브랜드</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>브랜드명</label>
+                        <input id="editKeywordInput" type="text" placeholder="브랜드명 입력">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
+                    <button type="button" class="btn-primary" style="background: #e1e4e8; color: #666;" onclick="document.getElementById('editModal').remove()">취소</button>
+                    <button type="submit" class="btn-primary">수정</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API 기본 URL
+        const API_BASE = '/api/keywords';
+        
+        // 페이지 로드 시 키워드 목록 불러오기
+        document.addEventListener('DOMContentLoaded', function() {
+            loadKeywords();
+            loadStats();
+        });
+
+        // 키워드 목록 불러오기
+        async function loadKeywords() {
+            const response = await fetch('/get_keywords');
+            const data = await response.json();
+            if (data.keywords) {
+                updateBrandList(data.keywords);
+            }
+        }
+
+        // 브랜드 리스트 업데이트
+        function updateBrandList(keywords) {
+            const brandList = document.querySelector('.brand-list');
+            brandList.innerHTML = '';
+            
+            if (keywords.length === 0) {
+                brandList.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">등록된 키워드가 없습니다.</div>';
+                return;
+            }
+            
+            keywords.forEach(keyword => {
+                const typeClass = keyword.type === '경쟁사' ? 'competitor' : 'company';
+                const typeLabel = keyword.type || '자사';
+                const brandItem = document.createElement('div');
+                brandItem.className = 'brand-item';
+                brandItem.innerHTML = `
+                    <div class="brand-info">
+                        <span class="brand-type ${typeClass}">${typeLabel}</span>
+                        <span class="brand-name">${keyword.keyword}</span>
+                    </div>
+                    <div class="brand-actions">
+                        <button class="btn-icon" onclick="editKeyword(${keyword.id}, '${keyword.keyword}', '${typeLabel}')">
+                            <svg width="16" height="16" fill="#666" viewBox="0 0 24 24">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon" onclick="deleteKeyword(${keyword.id})">
+                            <svg width="16" height="16" fill="#666" viewBox="0 0 24 24">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                brandList.appendChild(brandItem);
+            });
+        }
+
+        // 통계 정보 불러오기
+        async function loadStats() {
+            try {
+                const response = await fetch(API_BASE + '/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStats(data.data);
+                }
+            } catch (error) {
+                console.error('통계 로드 실패:', error);
+            }
+        }
+
+        // 통계 업데이트
+        function updateStats(stats) {
+            const statCards = document.querySelectorAll('.stat-card .value');
+            if (statCards.length >= 1) {
+                statCards[0].textContent = stats.total_count; // 모니터링 브랜드 수
+            }
+        }
+
+        // 키워드 추가
+        async function addKeyword(keyword, type = '자사') {
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ keyword: keyword, type: type })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    loadKeywords(); // 목록 새로고침
+                    loadStats(); // 통계 새로고침
+                } else {
+                    showMessage('오류: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 연결에 실패했습니다.', 'error');
+            }
+        }
+
+        // 키워드 수정
+        async function updateKeyword(id, newKeyword, newType = '자사') {
+            try {
+                const response = await fetch(`${API_BASE}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ keyword: newKeyword, type: newType })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    loadKeywords(); // 목록 새로고침
+                } else {
+                    showMessage('오류: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 연결에 실패했습니다.', 'error');
+            }
+        }
+
+        // 키워드 삭제
+        async function deleteKeyword(id) {
+            if (!confirm('이 키워드를 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    loadKeywords(); // 목록 새로고침
+                    loadStats(); // 통계 새로고침
+                } else {
+                    showMessage('오류: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('서버 연결에 실패했습니다.', 'error');
+            }
+        }
+
+        // 수정용 모달 동적 생성
+        function showEditModal(id, currentKeyword, currentType) {
+            // 기존 모달 제거
+            const oldModal = document.getElementById('editModal');
+            if (oldModal) oldModal.remove();
+
+            // 모달 생성
+            const modal = document.createElement('div');
+            modal.id = 'editModal';
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">키워드 수정</h3>
+                        <button class="close-btn" onclick="document.getElementById('editModal').remove()">&times;</button>
+                    </div>
+                    <form id="editKeywordForm">
+                        <div class="brand-form">
+                            <div class="form-group">
+                                <label>브랜드 유형</label>
+                                <select id="editType" style="padding: 12px; border: 1px solid #e1e4e8; border-radius: 6px; font-size: 14px;">
+                                    <option value="자사" ${currentType === '자사' ? 'selected' : ''}>자사 브랜드</option>
+                                    <option value="경쟁사" ${currentType === '경쟁사' ? 'selected' : ''}>경쟁사 브랜드</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>브랜드명</label>
+                                <input id="editKeywordInput" type="text" value="${currentKeyword}" placeholder="브랜드명 입력">
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
+                            <button type="button" class="btn-primary" style="background: #e1e4e8; color: #666;" onclick="document.getElementById('editModal').remove()">취소</button>
+                            <button type="submit" class="btn-primary">수정</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // 폼 제출 이벤트
+            document.getElementById('editKeywordForm').onsubmit = function(e) {
+                e.preventDefault();
+                const newKeyword = document.getElementById('editKeywordInput').value.trim();
+                const newType = document.getElementById('editType').value;
+                if (newKeyword) {
+                    updateKeyword(id, newKeyword, newType);
+                    modal.remove();
+                } else {
+                    showMessage('키워드를 입력해주세요.', 'error');
+                }
+            };
+        }
+
+        // 키워드 편집 버튼 클릭 시
+        function editKeyword(id, currentKeyword, currentType) {
+            showEditModal(id, currentKeyword, currentType);
+        }
+
+        // 메시지 표시 (팝업)
+        function showMessage(message, type = 'info') {
+            // 기존 메시지 제거
+            const existingMessage = document.querySelector('.message-popup');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            // 새 메시지 생성
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-popup ${type}`;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                max-width: 350px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease;
+            `;
+            
+            // 메시지 타입별 스타일
+            if (type === 'success') {
+                messageDiv.style.backgroundColor = '#4caf50';
+            } else if (type === 'error') {
+                messageDiv.style.backgroundColor = '#f44336';
+            } else {
+                messageDiv.style.backgroundColor = '#2196f3';
+            }
+            
+            // 메시지 내용과 확인 버튼
+            messageDiv.innerHTML = `
+                <div style="margin-bottom: 15px;">${message}</div>
+                <button onclick="this.parentElement.remove()" style="
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 500;
+                    transition: background 0.2s;
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+                   onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    확인
+                </button>
+            `;
+            
+            document.body.appendChild(messageDiv);
+        }
+
+        // 모달 열기/닫기 (기존 코드 수정)
+        function openModal() {
+            document.getElementById('brandModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('brandModal').style.display = 'none';
+            // 폼 초기화
+            document.querySelector('#brandModal input[type="text"]').value = '';
+        }
+
+        // 브랜드 추가 폼 제출 처리
+        document.querySelector('#brandModal form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const typeSelect = this.querySelector('select');
+            const keywordInput = this.querySelector('input[type="text"]');
+            const type = typeSelect.value === '경쟁사 브랜드' ? '경쟁사' : '자사';
+            const keyword = keywordInput.value.trim();
+            
+            if (keyword) {
+                addKeyword(keyword, type);
+                closeModal();
+            } else {
+                showMessage('키워드를 입력해주세요.', 'error');
+            }
+        });
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('brandModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // 사이드바 메뉴 클릭 이벤트
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // CSS 애니메이션 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        async function saveKeywords(keywords, type = '자사') {
+            const response = await fetch('/save_keywords', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ keywords, type })
+            });
+            const data = await response.json();
+            if (data.message) {
+                showMessage(data.message, 'success');
+                loadKeywords();
+            }
+        }
+    </script>
+</body>
+</html>
