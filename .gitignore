@@ -40,6 +40,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # React build
+build/
 frontend/build/
 frontend/.env
 
@@ -74,10 +75,11 @@ backend/src/ml/models/koelectra_model/
 backend/src/ml/models/retrained_model/
 backend/src/ml/models/retrained_model_20250724_113545/
 
-# Large data files
-*.json
+# Large data files - exclude only specific large JSON files
+backend/src/ml/models/*.json
 !package*.json
 !tsconfig.json
+!frontend/public/manifest.json
 
 # API Keys and secrets
 **/config.yaml
